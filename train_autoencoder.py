@@ -26,9 +26,9 @@ class c_autoencoder:
 		self.loss = theano.tensor.mean((self.x - self.y)**2)
 		self.params = [self.W1, self.b1, self.W2, self.b2, self.W3, self.b3, self.b4]
 
-def setup_autoencoder(training_info):
+def setup_autoencoder(training_info, param):
 	# model parameters
-	log10_learning_rate = numpy.random.uniform(-2, -4)
+	log10_learning_rate = numpy.random.uniform(-1, -4)
 	log2_hidden_unit_count = numpy.random.uniform(4, 8) 	
 
 	learning_rate = pow(10, log10_learning_rate)
@@ -55,9 +55,7 @@ if __name__ == "__main__":
 	data['test'][1] = [] 
 	data['validation'][1] = [] 
 
-	print "Training set size %d" % len(data['train'][0])
-	print "Validation set size %d" % len(data['validation'][0])
-	print "Test set size %d" % len(data['test'][0])
-
 	experiment = c_experiment("train_autoencoder", "Train network A using RMSProp and early stopping", setup_autoencoder)
 	experiment.run(data, 100)
+
+

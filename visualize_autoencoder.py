@@ -3,7 +3,8 @@ from train_autoencoder import c_autoencoder
 
 if __name__ == "__main__": 
 	data = get_mnist_data()
-	autoencoder = cPickle.load(open("results/train_autoencoder/model.pickle", "r"))
+	# autoencoder = c_experiment.get_model("train_autoencoder_with_pretraining")
+	autoencoder = c_experiment.get_model("train_autoencoder")
 
 	theano_eval_autoencoder = theano.function(inputs=[autoencoder.x], outputs=autoencoder.y)
 

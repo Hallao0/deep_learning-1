@@ -207,6 +207,29 @@ class c_experiment:
 		self.best_training_info = None
 		self.training_info_array = [] 
 
+	@staticmethod
+	def get_result_dir(name):
+		return "results/" + name
+
+	@staticmethod
+	def get_model(name):
+		file = c_experiment.get_result_dir(name) + "/model.pickle" 
+		return cPickle.load(open(file, "r"))
+
+	@staticmethod	
+	def get_training_info(name):
+		file = c_experiment.get_result_dir(name) + "/model_info.pickle" 
+		return cPickle.load(open(file, "r"))
+
+	@staticmethod
+	def clean(result_dir):
+		# clean old results
+		if not os.path.isdir("results"):
+			os.mkdir("results")
+		if os.path.isdir(result_dir):
+			shutil.rmtree(result_dir)
+		os.mkdir(result_dir)
+
 	def train(self, data, training_info, theano_train, theano_eval_loss, theano_eval_performance): 
 		min_loss = None
 		use_x_only = True 
@@ -285,15 +308,9 @@ class c_experiment:
 
 		return training_info 	
 
-	def run(self, data, sample_count): 
-		result_dir = "results/" + self.name
-
-		# clean old results
-		if not os.path.isdir("results"):
-			os.mkdir("results")
-		if os.path.isdir(result_dir):
-			shutil.rmtree(result_dir)
-		os.mkdir(result_dir)
+	def run(self, data, sample_count, user_param = None): 
+		result_dir = c_experiment.get_result_dir(self.name)
+		c_experiment.clean(result_dir)
 
 		self.best_training_info = None
 		self.best_model = None
@@ -301,7 +318,7 @@ class c_experiment:
 
 		for i in range(sample_count): 
 			training_info = c_training_info(i)
-			model, theano_train, theano_eval_loss, theano_eval_performance = self.setup(training_info)
+			model, theano_train, theano_eval_loss, theano_eval_performance = self.setup(training_info, user_param)
 
 			print "\nTraining run " + str(i) + ":"
 			for param in training_info.hyper_parameter:

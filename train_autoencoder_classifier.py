@@ -1,8 +1,6 @@
 from common import *
 from train_autoencoder import c_autoencoder
 
-g_autoencoder = None
-
 class c_classifier: 
 	def __init__(self, autoencoder): 
 		self.W1 = autoencoder.W1
@@ -22,7 +20,7 @@ class c_classifier:
 		self.loss = -theano.tensor.mean(theano.tensor.log(self.z)[theano.tensor.arange(self.y.shape[0]), self.y])	
 		self.performance = 1. - theano.tensor.mean(theano.tensor.neq(theano.tensor.argmax(self.z, axis=1), self.y))
 
-def setup(training_info): 
+def setup(training_info, user_param): 
 	# model parameters
 	log10_learning_rate = numpy.random.uniform(-1, -4)
 	log2_hidden_unit_count = numpy.random.uniform(4, 9) 	
@@ -36,7 +34,8 @@ def setup(training_info):
 	training_info.hyper_parameter['decay_rate'] = decay_rate
 
 	# build model
-	model = c_classifier(g_autoencoder)
+	autoencoder = c_experiment.get_model(user_param)
+	model = c_classifier(autoencoder)
 	updates = rms_prop(model.loss, model.params, learning_rate, decay_rate)
 
 	theano_train = theano.function(inputs=[model.x, model.y], outputs=[], updates=updates, allow_input_downcast=True)
@@ -45,7 +44,7 @@ def setup(training_info):
 	return model, theano_train, theano_eval_loss, theano_eval_performance
 
 if __name__ == "__main__": 
-	g_autoencoder = cPickle.load(open("results/train_autoencoder/model.pickle", "r"))
 	experiment = c_experiment("train_autoencoder_classifier", "Train classifier using a pretrained autoencoder", setup)
-	experiment.run(get_mnist_data(), 10)
+	experiment.run(get_mnist_data(), 10, "train_autoencoder")
+	# experiment.run(get_mnist_data(), 10, "train_autoencoder_with_pretraining")
 

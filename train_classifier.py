@@ -19,7 +19,7 @@ class c_classifier:
 		self.loss = -theano.tensor.mean(theano.tensor.log(self.z)[theano.tensor.arange(self.y.shape[0]), self.y])	
 		self.performance = 1. - theano.tensor.mean(theano.tensor.neq(theano.tensor.argmax(self.z, axis=1), self.y))
 
-def setup(training_info): 
+def setup(training_info, user_param): 
 	# model parameters
 	log10_learning_rate = numpy.random.uniform(-1, -4)
 	log2_hidden_unit_count = numpy.random.uniform(4, 9) 	
