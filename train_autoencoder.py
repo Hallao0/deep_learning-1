@@ -23,7 +23,7 @@ class c_autoencoder:
 		self.h3 = theano.dot(self.h2, self.W3) + self.b3
 		self.y = theano.dot(self.h3, self.W4) + self.b4
 
-		self.loss = theano.tensor.mean(self.x - self.y)**2
+		self.loss = theano.tensor.mean((self.x - self.y)**2)
 		self.params = [self.W1, self.b1, self.W2, self.b2, self.W3, self.b3, self.b4]
 
 def setup_autoencoder(training_info):
