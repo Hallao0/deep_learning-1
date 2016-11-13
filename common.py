@@ -10,10 +10,11 @@ import shutil
 import sys
 
 theano.config.floatX = 'float32'
-html_image_size = 500
-html_small_image_size = 400
 # theano.config.exception_verbosity = 'high'
 # theano.config.optimizer = 'fast_compile'
+
+html_image_size = 500
+html_small_image_size = 400
 
 def get_mnist_data(validation_size = 10000):
 	data = { 'train': [[], []], 'validation': [[], []], 'test': [[], []] }
@@ -82,10 +83,55 @@ def gradient_descent(cost, params, learning_rate = 0.01):
 		updates.append([p, p - g * learning_rate])
 	return updates
 
-def get_weight(size_in, size_out): 
+def normalized_weight_init(size_in, size_out): 
+	"""
+	Normalized initialization
+
+	Glorot and Bengio 2010: Understanding the difficulty of training deep feedforward neural networks
+	http://jmlr.org/proceedings/papers/v9/glorot10a/glorot10a.pdf
+	"""
 	scale = numpy.sqrt(6.0 / (size_in + size_out))
 	w = theano.shared(numpy.asarray(((numpy.random.rand(size_in, size_out) * 2. - 1.) * scale)), 'float32')
 	return w
+
+def orthonormal_matrix_init(size_in, size_out): 
+	"""
+	Orthonormal matrix init
+
+	All you need is a good init 
+	https://arxiv.org/pdf/1511.06422v7.pdf
+
+	Exact solutions to the nonlinear dynamics of learning in deep linear neural networks
+	https://arxiv.org/pdf/1312.6120v3.pdf
+	"""
+	R = numpy.random.randn(size_in, size_out) 
+	[U, S, V] = numpy.linalg.svd(R)
+	if size_in >= size_out:
+		return theano.shared(U[:, 0:size_out], 'float32')
+	else:
+		return theano.shared(V[0:size_in, :], 'float32')
+
+def unit_variance_init(data, w, x, y, minibatch_size=200, tolerance=0.01, max_try_count=5): 
+	"""
+	Orthonormal matrix init
+	All you need is a good init 
+	https://arxiv.org/pdf/1511.06422v7.pdf
+	"""
+	var = theano.tensor.var(y)
+	updates = [[w, w / theano.tensor.sqrt(var)]]
+	theano_eval_var = theano.function(inputs=[x], outputs=[var], updates=updates) 
+
+	for i in range(max_try_count): 
+		var = theano_eval_var(data[0][i * minibatch_size: (i+1) * minibatch_size])
+		print "variance at iteration " + str(i) + " " + str(var)
+		if abs(var[0] - 1.) < tolerance:
+			return
+
+def get_weight(size_in, size_out, method="orthonormal"): 
+	if method == "normalized_init":
+		return normalized_init(size_in, size_out)
+	elif method == "orthonormal":
+		return orthonormal_matrix_init(size_in, size_out)
 
 def get_bias(size):
 	return theano.shared(numpy.zeros(size), 'float32')

@@ -21,23 +21,19 @@ class c_autoencoder:
 		self.h1 = theano.dot(self.x, self.W1) + self.b1
 		self.h2 = theano.tensor.nnet.softmax(theano.dot(self.h1, self.W2) + self.b2)
 		self.h3 = theano.dot(self.h2, self.W3) + self.b3
-		self.y = self.get_output(self.h3)
+		self.y = self.get_output(theano.dot(self.h3, self.W4) + self.b4)
 
 		self.loss = theano.tensor.mean((self.x - self.y)**2)
 		self.params = [self.W1, self.b1, self.W2, self.b2, self.W3, self.b3, self.b4]
 
-	def get_output(self, x):
-		y = theano.dot(self.h3, self.W4) + self.b4
+	def get_output(self, y):
 		return 255.0 * theano.tensor.nnet.sigmoid(y)
 
-def setup_autoencoder(training_info, param):
-	# model parameters
-	log10_learning_rate = numpy.random.uniform(-1, -4)
-	log2_hidden_unit_count = numpy.random.uniform(4, 8) 	
-
+def setup_autoencoder(training_info, user_param):
+	log10_learning_rate = numpy.random.uniform(-1, -5)
 	learning_rate = pow(10, log10_learning_rate)
 	decay_rate = numpy.random.uniform(0.1, 0.9)
-	hidden_unit_count = int(pow(2, log2_hidden_unit_count))
+	hidden_unit_count = int(numpy.random.uniform(10, 512))
 
 	training_info.hyper_parameter['hidden_unit_count'] = hidden_unit_count
 	training_info.hyper_parameter['learning_rate'] = learning_rate
@@ -45,6 +41,9 @@ def setup_autoencoder(training_info, param):
 
 	# build model
 	model = c_autoencoder(hidden_unit_count)
+	unit_variance_init(user_param, model.W1, model.x, model.h1)
+	unit_variance_init(user_param, model.W2, model.x, model.h2)
+	unit_variance_init(user_param, model.W3, model.x, model.h3)
 	updates = rms_prop(model.loss, model.params, learning_rate, decay_rate) 
 
 	theano_train = theano.function(inputs=[model.x], outputs=[], updates=updates, allow_input_downcast=True)
@@ -60,6 +59,6 @@ if __name__ == "__main__":
 	data['validation'][1] = [] 
 
 	experiment = c_experiment("train_autoencoder", "Train autoencoder with sigmoidal output layer", setup_autoencoder)
-	experiment.run(data, 100)
+	experiment.run(data, 100, data['train'])
 
 
