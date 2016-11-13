@@ -21,11 +21,10 @@ class c_classifier:
 
 def setup(training_info, user_param): 
 	# model parameters
-	log10_learning_rate = numpy.random.uniform(-1, -4)
-	log2_hidden_unit_count = numpy.random.uniform(4, 9) 	
+	log10_learning_rate = numpy.random.uniform(-1, -5)
 
 	learning_rate = pow(10, log10_learning_rate)
-	hidden_unit_count = int(pow(2, log2_hidden_unit_count))
+	hidden_unit_count = 100
 	decay_rate = 0.9
 
 	training_info.hyper_parameter['hidden_unit_count'] = hidden_unit_count

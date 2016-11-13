@@ -32,8 +32,9 @@ class c_autoencoder:
 def setup_autoencoder(training_info, user_param):
 	log10_learning_rate = numpy.random.uniform(-1, -5)
 	learning_rate = pow(10, log10_learning_rate)
-	decay_rate = numpy.random.uniform(0.1, 0.9)
-	hidden_unit_count = int(numpy.random.uniform(10, 512))
+	decay_rate = numpy.random.uniform(0.9, 0.99)
+	# hidden_unit_count = int(numpy.random.uniform(10, 512))
+	hidden_unit_count = 100
 
 	training_info.hyper_parameter['hidden_unit_count'] = hidden_unit_count
 	training_info.hyper_parameter['learning_rate'] = learning_rate

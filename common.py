@@ -66,6 +66,18 @@ def adam(loss, all_params, learning_rate=0.001, b1=0.9, b2=0.999, e=1e-8, gamma=
     updates.append((t, t + 1.))
     return updates
 
+def nesterov(cost, params, learning_rate=0.01, momentum=0.9):
+	updates = []
+	grads = theano.tensor.grad(cost=cost, wrt=params)
+	for p, g in zip(params, grads):
+		v = theano.shared(p.get_value()*0., 'float32')
+		v_prev = theano.shared(p.get_value()*0., 'float32')
+
+		updates.append([v_prev, v])
+		updates.append([v, decay_rate * v - learning_rate * g])
+		updates.append([p, -decay_rate * v_prev + (1 + decay_rate) * v])
+	return updates
+
 def rms_prop(cost, params, learning_rate=0.01, decay_rate=0.9):
 	updates = []
 	grads = theano.tensor.grad(cost=cost, wrt=params)
@@ -73,7 +85,7 @@ def rms_prop(cost, params, learning_rate=0.01, decay_rate=0.9):
 		r = theano.shared(p.get_value()*0., 'float32')
 		r_new = decay_rate * r + (1 - decay_rate) * g**2 
 		updates.append([r, r_new])
-		updates.append([p, p - learning_rate * g / theano.tensor.sqrt(r_new + 1e-8)])
+		updates.append([p, p - learning_rate * g / (theano.tensor.sqrt(r_new) + 1e-8)])
 	return updates
 
 def gradient_descent(cost, params, learning_rate = 0.01):
