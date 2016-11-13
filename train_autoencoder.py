@@ -21,10 +21,14 @@ class c_autoencoder:
 		self.h1 = theano.dot(self.x, self.W1) + self.b1
 		self.h2 = theano.tensor.nnet.softmax(theano.dot(self.h1, self.W2) + self.b2)
 		self.h3 = theano.dot(self.h2, self.W3) + self.b3
-		self.y = theano.dot(self.h3, self.W4) + self.b4
+		self.y = self.get_output(self.h3)
 
 		self.loss = theano.tensor.mean((self.x - self.y)**2)
 		self.params = [self.W1, self.b1, self.W2, self.b2, self.W3, self.b3, self.b4]
+
+	def get_output(self, x):
+		y = theano.dot(self.h3, self.W4) + self.b4
+		return 255.0 * theano.tensor.nnet.sigmoid(y)
 
 def setup_autoencoder(training_info, param):
 	# model parameters
@@ -55,7 +59,7 @@ if __name__ == "__main__":
 	data['test'][1] = [] 
 	data['validation'][1] = [] 
 
-	experiment = c_experiment("train_autoencoder", "Train network A using RMSProp and early stopping", setup_autoencoder)
+	experiment = c_experiment("train_autoencoder", "Train autoencoder with sigmoidal output layer", setup_autoencoder)
 	experiment.run(data, 100)
 
 
