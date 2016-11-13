@@ -3,14 +3,14 @@ from train_autoencoder import c_autoencoder
 
 def setup_pretraining(training_info, user_param):
 	# 100  hidden units and learning rate range were obtained via random search
-	log10_learning_rate = numpy.random.uniform(-4, -5)
+	log10_learning_rate = numpy.random.uniform(-3, -5)
 	learning_rate = pow(10, log10_learning_rate)
-	decay_rate = numpy.random.uniform(0.5, 0.99)
+	# decay_rate = numpy.random.uniform(0.5, 0.99)
 	hidden_unit_count = 100
 
 	training_info.hyper_parameter['hidden_unit_count'] = hidden_unit_count
 	training_info.hyper_parameter['learning_rate'] = learning_rate
-	training_info.hyper_parameter['decay_rate'] = decay_rate
+	# training_info.hyper_parameter['decay_rate'] = decay_rate
 
 	model = c_autoencoder(hidden_unit_count) 
 	h1 = theano.dot(model.x, model.W1) + model.b1
@@ -21,7 +21,7 @@ def setup_pretraining(training_info, user_param):
 	unit_variance_init(user_param, model.W1, model.x, h1)
 
 	params = [model.W1, model.b1, model.b4]
-	updates = rms_prop(loss, params, learning_rate, decay_rate) 
+	updates = adam(loss, params, learning_rate)
 
 	theano_train = theano.function(inputs=[model.x], outputs=[], updates=updates, allow_input_downcast=True)
 	theano_eval_loss = theano.function(inputs=[model.x], outputs=loss, allow_input_downcast=True)
@@ -31,7 +31,7 @@ def setup_autoencoder_with_pretraining(training_info, user_param):
 	model = c_experiment.get_model(user_param[0])
 	info = c_experiment.get_training_info(user_param[0])
 
-	log10_learning_rate = numpy.random.uniform(-1, -5)
+	log10_learning_rate = numpy.random.uniform(-3, -5)
 	learning_rate = pow(10, log10_learning_rate)
 	decay_rate = numpy.random.uniform(0.5, 0.99)	
 	hidden_unit_count = info.hyper_parameter['hidden_unit_count']
