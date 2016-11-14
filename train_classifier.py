@@ -25,15 +25,13 @@ def setup(training_info, user_param):
 
 	learning_rate = pow(10, log10_learning_rate)
 	hidden_unit_count = 100
-	decay_rate = 0.9
 
 	training_info.hyper_parameter['hidden_unit_count'] = hidden_unit_count
 	training_info.hyper_parameter['learning_rate'] = learning_rate
-	training_info.hyper_parameter['decay_rate'] = decay_rate
 
 	# build model
 	model = c_classifier(hidden_unit_count)
-	updates = rms_prop(model.loss, model.params, learning_rate, decay_rate)
+	updates = adam(model.loss, model.params, learning_rate)
 
 	theano_train = theano.function(inputs=[model.x, model.y], outputs=[], updates=updates, allow_input_downcast=True)
 	theano_eval_loss = theano.function(inputs=[model.x, model.y], outputs=model.loss, allow_input_downcast=True)
