@@ -65,7 +65,7 @@ def visualize_W2_linear(thW1, thW2, num_weights, path=''):
 	'''
 	W1 = thW1.get_value()
 	W2 = thW2.get_value()
-	W2_ind = np.argsort(W2, axis=0)
+	W2_ind = np.argsort(np.absolute(W2), axis=0)
 	
 	W2_new = np.zeros((W1.shape[0],W2.shape[1]))
 	for i in xrange(0, W1.shape[0]):

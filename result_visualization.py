@@ -1,9 +1,8 @@
 from common import * 
 from common_visualization import * 
+from train_autoencoder_classifier import c_classifier
 from train_autoencoder import c_autoencoder
-from train_autoencoder_classifier import c_classifier_with_specialization_layer
 from train_classifier import c_classifier
-
 
 def visualize_classifier(model, path, data, samples):
  	if not os.path.exists(path_s):
@@ -45,7 +44,7 @@ def visualize_autoencoder(model, path, data, samples):
 	plot.savefig(path+'response.png')
 	visualize_b1(model.b1, path=path)
 	visualize_b2(model.b2, path=path)
-	visualize_b2(model.b3, path=path)
+	visualize_b3(model.b3, path=path)
 	visualize_W2(model.W2, path=path)
 	visualize_W1(model.W1, path=path)
 	visualize_W3(model.W3, path=path)
@@ -57,15 +56,23 @@ if __name__ == "__main__":
 	l = data['validation'][1].shape[0]
 	ind = np.random.permutation(l)
 	ind = ind[:10]
-
-	autoencoder = c_experiment.get_model("train_classifier")
-	path_s = 'results/visualization/pretrained_classifier/'
-	visualize_classifier(autoencoder, path_s, data, ind)
 	
 	autoencoder = c_experiment.get_model("train_autoencoder_classifier")
-	path_s = 'results/visualization/classifier/'
+	path_s = 'results/visualization/train_autoencoder_classifier/'
 	visualize_classifier(autoencoder, path_s, data, ind)
 	
 	autoencoder = c_experiment.get_model("train_autoencoder")
-	path_s = 'results/visualization/autoencoder/'
+	path_s = 'results/visualization/train_autoencoder/'
+	visualize_autoencoder(autoencoder, path_s, data, ind)
+
+	autoencoder = c_experiment.get_model("train_classifier")
+	path_s = 'results/visualization/train_classifier/'
+	visualize_classifier(autoencoder, path_s, data, ind)
+	
+	autoencoder = c_experiment.get_model("pretrain_autoencoder")
+	path_s = 'results/visualization/pretrain_autoencoder/'
+	visualize_autoencoder(autoencoder, path_s, data, ind)
+	
+	autoencoder = c_experiment.get_model("train_autoencoder_with_pretraining")
+	path_s = 'results/visualization/train_autoencoder_with_pretraining/'
 	visualize_autoencoder(autoencoder, path_s, data, ind)
